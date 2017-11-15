@@ -1,0 +1,32 @@
+resultMap
+·constructor–实例化的时候通过构造器将结果集注入到类中
+oidArg– ID 参数; 将结果集标记为ID，以方便全局调用
+oarg–注入构造器的结果集
+·id–结果集ID，将结果集标记为ID，以方便全局调用
+·result–注入一个字段或者javabean属性的结果
+·association–复杂类型联合;许多查询结果合成这个类型
+o嵌套结果映射– associations能引用自身,或者从其它地方引用
+·collection–复杂类型集合
+o嵌套结果映射– collections能引用自身,或者从其它地方引用
+·discriminator–使用一个结果值以决定使用哪个resultMap
+ocase–基于不同值的结果映射
+§嵌套结果映射–case也能引用它自身, 所以也能包含这些同样的元素。它也可以从外部引用resultMap
+ 
+è最佳实践:逐步地生成resultMap，单元测试对此非常有帮助。如果您尝试一下子就生成像上面这样巨大的resultMap，
+可能会出错，并且工作起来非常吃力。从简单地开始，再一步步地扩展，并且进行单元测试。使用框架开发有一个缺点，
+
+它们有时像是一个黑合。为了确保达到您所预想的行为，最好的方式就是进行单元测试。这对提交bugs 也非常有用。
+ 
+ 
+ 在映射b1属性时用association标签, 映射b2时用collection标签，分别是一对一，一对多的关系
+
+ 
+<association property="customerSource" javaType="SystemDictionaryItem">
+<result column="ss2id" property="id"/>
+<result column="ss2name" property="name"/>
+</association>
+
+<collection property="permissions" javaType="arraylist" ofType="Permission">
+<id column="pid" property="id"/>
+<result column="pname" property="name"/>
+</collection>

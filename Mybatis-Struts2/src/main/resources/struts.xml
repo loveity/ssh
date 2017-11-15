@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+	
+	<struts>
+		<constant name="struts.devMode" value="false"></constant>
+		
+		<!-- 设置一个不需要权限的  前台的包，里面有许多的action-->
+		<package name="default" namespace="/" extends="struts-default">
+			<!-- 登录不需要判断权限 -->
+			<action name="login_*" class="com.test.shopping.web_befor.action.LoginAction" method="{1}">
+				<result name="login" >login.jsp</result>
+				<result type="redirect">/system/index</result>
+			</action>
+			
+			<!-- 这是前台的索引文件 -->
+			<action name="index_*" class="com.test.shopping.web_befor.action.IndexAction" method="{1}">
+				<result>/WEB-INF/view/main/index.jsp</result>
+				<result name="{1}">/WEB-INF/view/main/{1}.jsp</result>
+			</action>
+			
+			<!-- 详细的action -->
+			<action name="productDetil_*" class="com.test.shopping.web_befor.action.ProductDetilAction" method="{1}">
+				<result >/WEB-INF/view/main/detil.jsp</result>
+			</action>
+			
+			<!-- 配置购物车的action -->
+			<action name="cart_*" class="com.test.shopping.web_befor.action.BuyCartAction" method="{1}">
+				<result >/WEB-INF/view/main/buycart.jsp</result>
+				<result name="reload" type="redirect">/cart</result>
+			</action>
+			
+			<action name="sign_*" class="com.test.shopping.web_befor.action.SignAction" method="{1}">
+				<result>/WEB-INF/view/main/sign/sign.jsp</result>
+				<result name="signsuccess">/WEB-INF/view/main/sign/success.jsp</result>
+			</action>
+			
+		</package>
+		
+		<!-- 这里是验证码的action -->
+		<package name="Security" namespace="/Security" extends="struts-default">
+		<action name="SecurityCodeImageAction" class="com.test.shopping.web_befor.action.SecurityCodeImageAction">
+		    	<result name="success" type="stream">
+		        <param name="contentType">image/jpeg</param>
+		        <param name="inputName">imageStream</param>
+		        <param name="bufferSize">2048</param>
+		    </result>
+		</action>
+	</package>
+		
+		
+		
+		<!-- 设置一个需要权限的  后台的action-->
+		<package name="system" namespace="/system"  extends="struts-default">
+			<!-- 需要配置拦截器 -->
+			<interceptors>
+				<!-- 这是配置我们自己的拦截器。还需要默认的拦截器 -->
+				<interceptor name="loginStack" class="com.test.shopping.web_inter.intecerptor.CheckLoginInterceptor"></interceptor>
+				<interceptor-stack name="mystack">
+				<!-- 放默认的拦截器栈和我们自己定义的拦截器 -->
+					<interceptor-ref name="defaultStack"></interceptor-ref>
+					<interceptor-ref name="loginStack"></interceptor-ref>
+				</interceptor-stack>
+			</interceptors>
+			<!-- 启用我们的拦截器栈 -->
+		<default-interceptor-ref name="mystack"></default-interceptor-ref>
+		<!-- 全局视图，当其他流量器访问的时候就需要验证login是否进行拦截 -->
+		<global-results>
+			<result name="login" type="redirect">/login.jsp</result>
+		</global-results>
+		
+		<!-- 这是访问后台的主页面 -->
+			<action name="index_*" class="com.test.shopping.web_after.action.IndexAction" method="{1}">
+				<result>/WEB-INF/view/system/index.html</result>
+				<result name="{1}">/WEB-INF/view/system/{1}.html</result>
+			</action>
+			
+			<!-- 配置一个修改密码的action -->
+			<action name="modif_*" class="com.test.shopping.web_after.action.ModifPasswordAction" method="{1}">
+				<result name="success">/WEB-INF/view/system/user/modif.jsp</result>
+				<result name="login" type="redirect">/login.jsp</result>
+			</action>
+			
+			
+			
+		<!-- 这是访问后台的操作表单的页面 -->
+			<action name="product_*" class="com.test.shopping.web_after.action.ProductAction" method="{1}">
+				<result>/WEB-INF/view/system/product/show.jsp</result>
+				<result name="input">/WEB-INF/view/system/product/edit.jsp</result>
+				<result name="reload" type="redirectAction">product</result>
+			</action>
+			
+			
+			<!-- 这是一个user的action -->
+			<action name="user_*" class="com.test.shopping.web_after.action.UserAction" method="{1}">
+				<result>/WEB-INF/view/system/user/show.jsp</result>
+				<result name="input">/WEB-INF/view/system/user/edit.jsp</result>
+				<result name="reload" type="redirectAction">user</result>
+				<result name="change" >/WEB-INF/view/system/user/change.jsp</result>
+			</action>
+			
+			<!-- 这是一个user的action -->
+			<action name="productdir_*" class="com.test.shopping.web_after.action.ProductDirAction" method="{1}">
+				<result>/WEB-INF/view/system/productdir/show.jsp</result>
+				<result name="input">/WEB-INF/view/system/productdir/edit.jsp</result>
+				<result name="reload" type="redirectAction">productdir</result>
+			</action>
+			
+		</package>
+		
+	</struts>

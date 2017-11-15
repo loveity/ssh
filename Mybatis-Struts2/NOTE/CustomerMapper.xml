@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlhs.crm.mapper.CustomerMapper">
+
+	<select id="get" parameterType="long" resultMap="bySelect">
+	select c.*,s.id sid,s.name sname,
+	ss.id ssid,ss.name ssname,
+	ss2.id ss2id,ss2.name ss2name, 
+	e.id eid,e.realname ename, 
+	e2.id e2id,e2.realname e2name from t_customer c 
+	left join t_systemdictionaryitem s on c.job_id= s.id 
+	left join t_systemdictionaryitem ss on c.salaryLevel_id=ss.id 
+	left join t_systemdictionaryitem ss2 on c.cs_id=ss2.id 
+	left join t_employee e on c.sell_id=e.id 
+	left join t_employee e2 on c.inputuser=e2.id 
+	 where c.id=#{id}
+	</select>
+	
+	<select id="getAll"  resultMap="bySelect">
+	select c.*,s.id sid,s.name sname,
+	ss.id ssid,ss.name ssname,
+	ss2.id ss2id,ss2.name ss2name, 
+	e.id eid,e.realname ename, 
+	e2.id e2id,e2.realname e2name from t_customer c 
+	left join t_systemdictionaryitem s on c.job_id= s.id 
+	left join t_systemdictionaryitem ss on c.salaryLevel_id=ss.id 
+	left join t_systemdictionaryitem ss2 on c.cs_id=ss2.id 
+	join t_employee e on c.sell_id=e.id 
+	left join t_employee e2 on c.inputuser=e2.id 
+	</select>
+	
+	<update id="update" parameterType="Customer">
+		update t_customer set name=#{name}, age=#{age},gender=#{gender},email=#{email},tel=#{tel},
+		status=#{status},qq=#{qq},wechat=#{wechat},inputtime=#{inputtime},sell_id=#{sell.id}, 
+		cs_id=#{customerSource.id},job_id=#{job.id},salaryLevel_id=#{salaryLevel.id},inputuser=#{inputuser.id}
+		where id =#{id}
+	</update>
+	
+	<insert id="save" parameterType="Customer" useGeneratedKeys="true" keyProperty="id">
+		insert into t_customer(name,age,gender,email,tel,status,qq,wechat,inputtime,sell_id,cs_id,job_id,salaryLevel_id,inputuser)
+		values(#{name},#{age},#{gender},#{email},#{tel},#{status},#{qq},#{wechat},#{inputtime},#{sell.id},#{customerSource.id},#{job.id},#{salaryLevel.id},#{inputuser.id})
+	</insert>
+	
+	<delete id="delete" parameterType="long">
+		delete   from t_customer  where id=#{id}
+	</delete>
+	
+	
+	
+	<select id="getAllByResut" parameterType="long" resultMap="bySelect">
+	select c.*,s.id sid,s.name sname,
+	ss.id ssid,ss.name ssname,
+	ss2.id ss2id,ss2.name ss2name, 
+	e.id eid,e.realname ename, 
+	e2.id e2id,e2.realname e2name from t_customer c 
+	left join t_systemdictionaryitem s on c.job_id= s.id 
+	left join t_systemdictionaryitem ss on c.salaryLevel_id=ss.id 
+	left join t_systemdictionaryitem ss2 on c.cs_id=ss2.id 
+	left join t_employee e on c.sell_id=e.id 
+	left join t_employee e2 on c.inputuser=e2.id 
+	</select>
+	
+	<resultMap type="Customer" id="bySelect" >
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="age" property="age"/>
+		<result column="gender" property="gender"/>
+		<result column="email" property="email"/>
+		<result column="tel" property="tel"/>
+		<result column="status" property="status"/>
+		<result column="qq" property="qq"/>
+		<result column="wechat" property="wechat"/>
+		<result column="inputuser" property="inputuser"/>
+		<result column="inputtime" property="inputtime"/>
+		
+		<association property="job" javaType="SystemDictionaryItem">
+			<result column="sid" property="id"/>
+			<result column="sname" property="name"/>
+		</association>
+		<association property="salaryLevel" javaType="SystemDictionaryItem">
+		<result column="ssid" property="id"/>
+			<result column="ssname" property="name"/>
+		</association>
+		<association property="customerSource" javaType="SystemDictionaryItem">
+		<result column="ss2id" property="id"/>
+			<result column="ss2name" property="name"/>
+		</association>
+		
+		<association property="sell" javaType="Employee">
+			<result column="eid" property="id"/>
+			<result column="ename" property="realName"/>
+		</association>
+		<association property="inputuser" javaType="Employee">
+			<result column="e2id" property="id"/>
+			<result column="e2name" property="realName"/>
+		</association>
+	</resultMap>
+
+   <!-- 这里是高级查询的sql -->
+	<select id="getPage" parameterType="com.wlhs.crm.query.impl.CustomerQuery" resultMap="bySelect">
+	
+		select c.*,s.id sid,s.name sname,
+		ss.id ssid,ss.name ssname,
+		ss2.id ss2id,ss2.name ss2name, 
+		e.id eid,e.realname ename, 
+		e2.id e2id,e2.realname e2name from t_customer c 
+		left join t_systemdictionaryitem s on c.job_id= s.id 
+		left join t_systemdictionaryitem ss on c.salaryLevel_id=ss.id 
+		left join t_systemdictionaryitem ss2 on c.cs_id=ss2.id 
+		left join t_employee e on c.sell_id=e.id 
+		left join t_employee e2 on c.inputuser=e2.id 
+	    <!-- 这里跟条件和分页语句 -->
+	    <include refid="whereSql"/>
+	    <if test="rows>0">
+	     	limit #{beginPage},#{rows}
+	    </if>
+	   
+	</select>
+	<sql id="whereSql">
+		<where>
+			and c.sell_id is not null
+		
+			<if test="job_id!=null">
+			 and c.job_id =#{job_id}
+			</if>
+			<if test="salaryLevel_id!=null">
+			 and c.salaryLevel_id =#{salaryLevel_id}
+			</if>
+			<if test="sellId!=null">
+			 and c.sell_id =#{sellId}
+			</if>
+			<if test="customerSource_id!=null">
+			 and c.cs_id =#{customerSource_id}
+			</if>
+			
+			<if test="keyWord!=null and keyWord!=''">
+			   and (c.name like concat('%',#{keyWord},'%'))
+			</if>
+			<if test="sell_id!=null">
+			and  c.sell_id =#{sell_id} 
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 查询总共有多少条记录 -->
+	<select id="getCount" resultType="int" parameterType="com.wlhs.crm.query.impl.CustomerQuery">
+		select count(c.id) from t_customer c 
+		  <include refid="whereSql"/>
+	</select>
+	
+	<!-- 添加一条sql 时候资源池里面的所有客户资源的sql -->
+	<select id="getCustomerResources" resultType="Customer" >
+		select * from t_customer c where c.sell_id is null; 
+	</select>
+	
+	<select id="getReport" resultType="Object">
+	
+	select count(*)count ,it.name iname from t_customer c 
+	LEFT JOIN t_systemdictionaryitem it on c.cs_id=it.id 
+	GROUP BY c.cs_id
+	</select>
+	
+	<select id="getPermissoinResources"  parameterType="long" resultMap="bySelect">
+		select c.*,s.id sid,s.name sname,
+		ss.id ssid,ss.name ssname,
+		ss2.id ss2id,ss2.name ss2name, 
+		e.id eid,e.realname ename, 
+		e2.id e2id,e2.realname e2name from t_customer c 
+		left join t_systemdictionaryitem s on c.job_id= s.id 
+		left join t_systemdictionaryitem ss on c.salaryLevel_id=ss.id 
+		left join t_systemdictionaryitem ss2 on c.cs_id=ss2.id 
+		left join t_employee e on c.sell_id=e.id 
+		left join t_employee e2 on c.inputuser=e2.id 
+		where c.sell_id = #{id}
+	</select>
+	
+	<select id="getPermissoinCount" resultType="int" parameterType="long">
+		select count(c.id) from t_customer c  where c.sell_id = #{id}
+	</select>
+	
+</mapper>

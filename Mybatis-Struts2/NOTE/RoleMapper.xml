@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wlhs.crm.mapper.RoleMapper">
+	<resultMap type="Role" id="roleResultMap">
+		<id column="id" property="id"/>
+		<result column="sn" property="sn"/>
+		<result column="name" property="name"/>
+		<collection property="permissions" javaType="arraylist" ofType="Permission">
+			<id column="pid" property="id"/>
+			<result column="pname" property="name"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 抽取公共的查询条件 -->
+	<sql id="selectSql">
+		SELECT r.*,p.id pid,p.name pname
+		from t_role r 
+		LEFT JOIN t_role_permission rp ON (r.id=rp.role_id)
+		LEFT JOIN t_permission p ON (p.id = rp.permission_id)
+	</sql>
+ 
+	<sql id="whereSql">
+		<!-- 关键字查询 -->
+		<where>
+			<if test="keyword!=null and keyword!=''">
+				r.name like concat('%', #{keyword}, '%')
+				or r.sn like concat('%', #{keyword}, '%')
+			</if>
+		</where>
+	</sql>
+
+	<!-- 保存一条数据 -->
+	<insert id="save" parameterType="Role" useGeneratedKeys="true" keyProperty="id">
+		insert into t_role(sn, name)
+		values(#{sn}, #{name})
+	</insert>
+
+	<!-- 修改一条数据 -->
+	<update id="update" parameterType="Role">
+		update t_role
+		set
+		sn=#{sn},
+		name=#{name}
+		where id = #{id}
+	</update>
+
+	<!-- 删除一条数据 -->
+	<delete id="delete" parameterType="long">
+		delete from t_role
+		where id =
+		#{id}
+	</delete>
+
+	<!-- 获取一条数据 -->
+	<select id="get" parameterType="long" resultMap="roleResultMap">
+		<include refid="selectSql" />
+		where r.id = #{id}
+	</select>
+	
+	<!-- 获取所有数据 -->
+	<select id="getAll" resultMap="roleResultMap">
+		<include refid="selectSql" />
+	</select>
+
+	<!-- 查询一共多少条数据 -->
+	<select id="getCount" parameterType="com.wlhs.crm.query.IBaseQuery" resultType="int">
+		select count(r.id)
+		from t_role r 
+		<include refid="whereSql" />
+	</select>
+
+	<!-- 高级查询分页 -->
+	<select id="getPage" parameterType="com.wlhs.crm.query.IBaseQuery" resultMap="roleResultMap">
+		<include refid="selectSql" />
+		<include refid="whereSql" />
+		limit #{beginPage}, #{rows}
+	</select>
+</mapper>

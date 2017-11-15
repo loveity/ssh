@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.shopping.domain.ProductDirMapper">
+	<select id="queryOne" parameterType="long" resultType="com.test.shopping.domain.ProductDir">
+		select * from t_productdir where id=#{id}
+	</select>
+
+	<select id="queryAll" resultType="com.test.shopping.domain.ProductDir"
+		parameterType="com.test.shopping.query.ProductDirQuery">
+		select * from t_productdir 
+		<where>
+			<if test="name!=null and name!=''">
+				and name=#{name}
+			</if>
+			
+			<if test="englishName!=null and englishName!=''">
+				and englishName=#{englishName}
+			</if>
+			
+			<if test="keywords!=null and keywords!=''">
+				and (name like concat('%',#{keywords},'%') or englishName like concat('%',#{keywords},'%') )
+			</if>
+		</where>
+			<if test="pageSize>0">
+		
+			limit #{indexBegin},#{pageSize}
+		</if>
+	</select>
+	<!-- 分页和查询 -->
+	<select id="queryList" resultType="com.test.shopping.domain.ProductDir"
+		parameterType="com.test.shopping.query.ProductDirQuery">
+		select * from t_productdir 
+		<where>
+			<if test="name!=null and name!=''">
+				and name=#{name}
+			</if>
+			
+			<if test="englishName!=null and englishName!=''">
+				and englishName=#{englishName}
+			</if>
+			
+			<if test="keywords!=null and keywords!=''">
+				and (name like concat('%',#{keywords},'%') or englishName like concat('%',#{keywords},'%') )
+			</if>
+		</where>
+		<if test="pageSize>0">
+		
+			limit #{indexBegin},#{pageSize}
+		</if>
+	</select>
+	
+	
+	<select id="count" parameterType="com.test.shopping.query.ProductDirQuery" resultType="int">
+		select count(*) from t_productdir 
+		<where>
+			<if test="name!=null and name!=''">
+				and name=#{name}
+			</if>
+			
+			<if test="englishName!=null and englishName!=''">
+				and englishName=#{englishName}
+			</if>
+			
+			<if test="keywords!=null and keywords!=''">
+				and (name like concat('%',#{keywords},'%') or englishName like concat('%',#{keywords},'%'))
+			</if>
+		</where>
+	</select>
+	
+	<delete id="delete"  parameterType="long">
+		delete from t_productdir where id= #{id}
+	</delete>
+	
+	<!-- 添加操作 -->
+	<insert id="save" parameterType="com.test.shopping.domain.ProductDir">
+		insert into t_productdir(name,englishName,intro)values(#{name},#{englishName},#{intro})
+	</insert>
+	<update id="update" parameterType="com.test.shopping.domain.ProductDir">
+		update t_productdir set name=#{name},englishName=#{englishName},intro=#{intro} where id=#{id}
+		
+	</update>
+	
+</mapper>

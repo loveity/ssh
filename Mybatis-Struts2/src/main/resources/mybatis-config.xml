@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- 配置资源文件进行访问数据库 -->
+	<properties resource="bc.properties"></properties>
+	<environments default="shopping">
+		<environment id="shopping">
+		<!-- 事务和连接池 -->
+			<transactionManager type="JDBC"></transactionManager>
+			<dataSource type="POOLED">
+				<property name="driver" value="${bc_driver}"/>
+				<property name="url" value="${bc_url}"/>
+				<property name="username" value="${bc_username}"/>
+				<property name="password" value="${bc_password}"/>
+			</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<mapper resource ="com/test/shopping/domain/ProductMapper.xml"/>
+		<mapper resource ="com/test/shopping/domain/UserMapper.xml"/>
+		<mapper resource ="com/test/shopping/domain/ProductDirMapper.xml"/>
+	</mappers>
+</configuration>

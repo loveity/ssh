@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.shopping.domain.UserMapper">
+	<select id="queryOne" parameterType="long" resultType="com.test.shopping.domain.User">
+		select * from t_user where id=#{id}
+	</select>
+	<!-- 这里是登录的查询方法 -->
+	<select id="login" resultType="com.test.shopping.domain.User" parameterType="string">
+		select * from t_user where username=#{username}
+	
+	</select>
+
+	<select id="queryAll" resultType="com.test.shopping.domain.User" parameterType="com.test.shopping.query.UserQuery">
+		select * from t_user 
+		<where>
+			<if test="keyWords!=null and keyWords!=''">
+				and username like concat('%',#{keyWords},'%')
+			</if>
+		</where>
+		<if test="pageSize>0">
+				limit #{indexBegin},#{pageSize}
+		</if>
+	</select>
+	
+	<!--  查询和分页 -->
+	<select id="queryList" resultType="com.test.shopping.domain.User"
+		parameterType="com.test.shopping.query.UserQuery">
+			select * from t_user 
+		<where>
+			<if test="keyWords!=null and keyWords!=''">
+				and username like concat('%',#{keyWords},'%')
+			</if>
+		</where>
+		<if test="pageSize>0">
+				limit #{indexBegin},#{pageSize}
+			</if>
+		</select>
+	
+	<select id="count" parameterType="com.test.shopping.query.UserQuery" resultType="int">
+		select count(*) from t_user 
+		<where>
+			<if test="keyWords!=null and keyWords!=''">
+				and username like concat('%',#{keyWords},'%')
+			</if>
+		</where>
+	</select>
+	
+	
+	
+	
+	<delete id="delete"  parameterType="long">
+		delete from t_user where id= #{id}
+	</delete>
+	
+	<!-- 添加操作 -->
+	<insert id="save" parameterType="com.test.shopping.domain.User">
+		insert into t_user(username,password,email,type,status,loginTime,loginIp,
+   lastLoginTime,lastLoginIp
+		)values(#{username},#{password},#{email},#{type},#{status},#{loginTime},
+	#{loginIp},#{lastLoginTime},#{lastLoginIp}
+		)
+	</insert>
+	<update id="update" parameterType="com.test.shopping.domain.User">
+		update t_user set username=#{username},password=#{password},email=#{email},type=#{type},
+    status=#{status},loginTime=#{loginTime},loginIp=#{loginIp},
+    lastLoginTime=#{lastLoginTime},lastLoginIp=#{lastLoginIp}
+    where id=#{id}
+	</update>
+	
+</mapper>

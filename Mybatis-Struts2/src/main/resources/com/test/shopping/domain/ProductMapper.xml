@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.shopping.domain.ProductMapper">
+	<!-- 一直为空，需要关系数据映射 -->
+	<resultMap type="com.test.shopping.domain.Product" id="Product">
+		<id column="pid" property="id"/>
+		<result column="pname" property="name"/>
+		<result column="psn" property="sn"/>
+		<result column="pcos" property="costPrice"/>
+		<result column="psal" property="salePrice"/>
+		<result column="pma" property="marketPrice"/>
+		<result column="plac" property="place"/>
+		<result column="pmo" property="model"/>
+		<result column="pnum" property="num"/>
+		<result column="pintro" property="intro"/>
+		<result column="psmall" property="smallPic"/>
+		<result column="pbi" property="bigPic"/>
+		<result column="pst" property="status"/>
+		<result column="viewTimes" property="viewTimes"/>
+		<result column="recommended" property="recommended"/>
+		<result column="inputTime" property="inputTime"/>
+		  
+		<association property="dir" javaType="com.test.shopping.domain.ProductDir">
+			<id column="diid" property="id"/>
+			<result column="diname" property="name"/>
+		</association>
+	
+	</resultMap>
+
+<!-- 
+	单独抽取出来进行查询查询
+ -->
+ 	<sql id="dirsql" >
+ 		select p.id pid,p.name pname,p.sn psn,p.costPrice pcos,p.salePrice psal,p.marketPrice pma,
+			p.place plac,p.model pmo,p.num pnum,p.intro pintro,p.bigPic pbi,p.smallPic psmall,
+			p.status pst,viewTimes,recommended,inputTime,di.id diid,di.name diname 
+		from t_product p
+			left join t_productdir di on p.dir_id = di.id
+ 	</sql>
+ <!-- 查询单独的一条 -->
+	<select id="queryOne" parameterType="long" resultMap="Product">
+		<include refid="dirsql"></include>
+		where p.id=#{id}
+	</select>
+	
+	<sql id="wheresql">
+		<where>
+			<if test="dir_id!=null and dir_id !=-1">
+				and dir_id = #{dir_id}
+			</if>
+			<if test="minSalePrice!=null">
+				and salePrice >= #{minSalePrice}
+			</if>
+			
+			<if test="maxSalePrice!=null">
+				and
+				<![CDATA[
+					salePrice <= #{maxSalePrice}
+				]]>
+			</if>
+			<if test="status!=null and status != -1">
+				and status = #{status}
+			</if>
+			<!-- 这里是判断关键字 -->
+			
+				<if test="keyWords!=null and keyWords!=''">
+						and (p.name like concat('%',#{keyWords},'%') or p.place  like concat('%',#{keyWords},'%'))  
+				</if>
+		</where>
+	
+	</sql>
+	
+	<select id="queryList" resultMap="Product"
+		parameterType="com.test.shopping.query.ProductQuery">
+		<include refid="dirsql"></include>
+		<include refid="wheresql"></include>
+		
+		<if test="pageSize>0">
+			limit #{indexBegin},#{pageSize}
+		</if>
+		</select>
+	
+	<select id="count" parameterType="com.test.shopping.query.ProductQuery" resultType="int">
+		select count(*) from t_product p
+		<include refid="wheresql"></include>
+		
+		
+	</select>
+	
+
+	<select id="queryAll" resultMap="Product" parameterType="com.test.shopping.query.ProductQuery">
+		
+		<include refid="dirsql"></include>
+		${getOrder}
+		<if test="pageSize>0">
+			limit #{indexBegin},#{pageSize}
+		</if>
+	</select>
+	
+	<delete id="delete"  parameterType="long">
+		delete from t_product
+		 where id= #{id}
+	</delete>
+	
+	<!-- 添加操作 -->
+	<insert id="save" parameterType="com.test.shopping.domain.Product">
+		insert into t_product(name,sn,costPrice,salePrice,marketPrice,place,model,num,
+	intro,bigPic,smallPic,status,viewTimes,recommended,inputTime,dir_id
+		)values (#{name},#{sn},#{costPrice},#{salePrice},#{marketPrice},#{place},
+	#{model},#{num},#{intro},#{bigPic},#{smallPic},#{status},#{viewTimes},#{recommended},
+	#{inputTime},#{dir.id}
+		)
+	</insert>
+	<update id="update" parameterType="com.test.shopping.domain.Product">
+		update t_product set 
+name=#{name},sn=#{sn},costPrice=#{costPrice},salePrice=#{salePrice},
+marketPrice=#{marketPrice},place=#{place},model=#{model},num=#{num},intro=#{intro},
+bigPic=#{bigPic},smallPic=#{smallPic},status=#{status},viewTimes=#{viewTimes},
+recommended=#{recommended},inputTime=#{inputTime},dir_id=#{dir.id}
+where id=#{id}		
+	</update>
+	
+</mapper>
